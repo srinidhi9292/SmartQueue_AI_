@@ -1,0 +1,39 @@
+{% extends 'booking/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 admin-sidebar d-none d-md-block">
+            <nav class="nav flex-column">
+                <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
+                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                </a>
+                <a class="nav-link {% if 'appointment' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_appointments' %}">
+                    <i class="bi bi-calendar-check me-2"></i>Appointments
+                </a>
+                <a class="nav-link {% if 'service' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_services' %}">
+                    <i class="bi bi-grid me-2"></i>Services
+                </a>
+                <a class="nav-link {% if 'timeslot' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_timeslots' %}">
+                    <i class="bi bi-clock me-2"></i>Time Slots
+                </a>
+                <a class="nav-link {% if 'blocked' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_blocked_dates' %}">
+                    <i class="bi bi-calendar-x me-2"></i>Blocked Dates
+                </a>
+            </nav>
+        </div>
+        <div class="col-md-10 p-4">
+            <div class="d-md-none mb-3">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-sm btn-outline-primary">Dashboard</a>
+                    <a href="{% url 'admin_appointments' %}" class="btn btn-sm btn-outline-primary">Appointments</a>
+                    <a href="{% url 'admin_services' %}" class="btn btn-sm btn-outline-primary">Services</a>
+                    <a href="{% url 'admin_timeslots' %}" class="btn btn-sm btn-outline-primary">Time Slots</a>
+                    <a href="{% url 'admin_blocked_dates' %}" class="btn btn-sm btn-outline-primary">Blocked Dates</a>
+                </div>
+            </div>
+            {% block admin_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

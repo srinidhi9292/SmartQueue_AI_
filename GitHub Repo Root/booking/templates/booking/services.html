@@ -1,0 +1,42 @@
+{% extends 'booking/base.html' %}
+{% block title %}Services{% endblock %}
+{% block content %}
+<div class="container py-5 fade-in" style="z-index:1;position:relative">
+    <div class="text-center mb-5">
+        <span class="section-label">What we offer</span>
+        <h2 style="font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-0.5px">Available Services</h2>
+        <p style="color:var(--muted)">Professional services with AI-optimized scheduling</p>
+    </div>
+    <div class="row g-4">
+        {% for service in services %}
+        <div class="col-md-4 fade-in-{{ forloop.counter }}">
+            <div class="card p-4 h-100">
+                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--primary),var(--cyan));border-radius:20px 20px 0 0"></div>
+                <div class="d-flex align-items-start gap-3">
+                    <div style="width:48px;height:48px;background:rgba(91,143,255,0.1);border:1px solid rgba(91,143,255,0.2);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <i class="bi bi-briefcase" style="color:var(--primary)"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px">{{ service.name }}</h5>
+                        <p style="color:var(--muted);font-size:.87rem;line-height:1.6;margin-bottom:16px">{{ service.description }}</p>
+                        <div class="d-flex gap-2 flex-wrap mb-4">
+                            <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(91,143,255,0.08);border:1px solid rgba(91,143,255,0.18);color:var(--primary);border-radius:50px;padding:4px 12px;font-size:.78rem">
+                                <i class="bi bi-clock"></i>{{ service.duration }} min
+                            </span>
+                            {% if service.price %}
+                            <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,255,163,0.07);border:1px solid rgba(0,255,163,0.18);color:var(--emerald);border-radius:50px;padding:4px 12px;font-size:.78rem">
+                                ₹{{ service.price }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'book_appointment' %}" class="btn btn-primary btn-sm w-100" style="border-radius:8px">Book Now →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center"><p style="color:var(--muted)">No services available at this time.</p></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

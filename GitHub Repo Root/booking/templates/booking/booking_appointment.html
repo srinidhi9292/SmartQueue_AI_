@@ -1,0 +1,214 @@
+{% extends 'booking/base.html' %}
+{% block title %}Book Appointment{% endblock %}
+{% block extra_css %}
+<style>
+/* Dark form inputs */
+input, select, textarea {
+    background-color: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 12px !important;
+    color: #e8eeff !important;
+    padding: 12px 16px !important;
+}
+input::placeholder, textarea::placeholder { color: var(--muted) !important; }
+input:focus, select:focus, textarea:focus {
+    border-color: rgba(91,143,255,0.5) !important;
+    box-shadow: 0 0 0 3px rgba(91,143,255,0.12) !important;
+    color: #e8eeff !important;
+    background-color: var(--surface) !important;
+}
+select option { background: var(--panel); color: #e8eeff; }
+/* Calendar picker icon — make it visible on dark bg */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.7) sepia(1) saturate(2) hue-rotate(180deg);
+    cursor: pointer;
+    opacity: 0.8;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+/* Slot cards */
+.slot-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.25s;
+    color: #e8eeff;
+}
+.slot-card:hover { border-color: var(--border-bright); background: rgba(91,143,255,0.08); }
+.slot-card.selected { border-color: var(--primary) !important; background: rgba(91,143,255,0.14) !important; box-shadow: 0 0 0 2px rgba(91,143,255,0.2); }
+.slot-card.slot-available { border-left: 3px solid var(--emerald); }
+.slot-card.slot-almost_full { border-left: 3px solid var(--warning); }
+.slot-card.slot-recommended { background: linear-gradient(90deg, rgba(91,143,255,0.1), var(--surface)); }
+.slot-time { font-weight: 600; font-size: .9rem; color: #e8eeff; }
+/* AI recommendations card text */
+.ai-slot-item { 
+    background: rgba(91,143,255,0.08); 
+    border: 1px solid rgba(91,143,255,0.2); 
+    border-radius: 12px; 
+    padding: 14px 16px; 
+    margin-bottom: 8px;
+}
+.ai-slot-date { font-size: .88rem; font-weight: 600; color: #e8eeff; }
+.ai-slot-time { color: var(--muted); font-size: .8rem; margin-top: 2px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 fade-in" style="z-index:1;position:relative">
+    <div class="row g-5">
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <span class="section-label">New Booking</span>
+                <h2 style="font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-0.5px;color:#e8eeff">Book an Appointment</h2>
+                <p style="color:var(--muted)">AI-recommended slots are highlighted for shortest wait times.</p>
+            </div>
+
+            <div class="card p-4 p-md-5">
+                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--primary),var(--cyan));border-radius:20px 20px 0 0"></div>
+                <form method="post" id="bookingForm">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label" style="color:#8fa8cc;font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Service</label>
+                        <select name="service" id="serviceSelect" class="form-select" required>
+                            <option value="">— Choose a Service —</option>
+                            {% for service in form.service.field.queryset %}
+                            <option value="{{ service.pk }}" data-duration="{{ service.duration }}">
+                                {{ service.name }} · {{ service.duration }}min{% if service.price %} · ₹{{ service.price }}{% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label" style="color:#8fa8cc;font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Date</label>
+                        <input type="date" name="date" id="dateInput" class="form-control" required>
+                    </div>
+
+                    <div id="slotSection" style="display:none" class="mb-4">
+                        <label class="form-label" style="color:#8fa8cc;font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Available Time Slots</label>
+                        <div id="slotLoader" class="text-center py-4" style="display:none">
+                            <div class="spinner-border" style="color:var(--primary)" role="status"></div>
+                            <div class="mt-2" style="color:var(--muted);font-size:.9rem">Loading slots...</div>
+                        </div>
+                        <div id="slotList" class="row g-2"></div>
+                        <input type="hidden" name="timeslot" id="timeslotInput">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label" style="color:#8fa8cc;font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Notes (optional)</label>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="Any special requests or information..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-3" id="submitBtn" disabled style="border-radius:12px;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem">
+                        <i class="bi bi-calendar-check me-2"></i>Confirm Booking
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            {% if recommended_slots %}
+            <div class="card p-4 mb-4 fade-in-2">
+                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--violet),var(--primary));border-radius:20px 20px 0 0"></div>
+                <h6 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:4px;color:#e8eeff">
+                    <i class="bi bi-stars me-2" style="color:var(--gold)"></i>AI Recommendations
+                </h6>
+                <p style="color:var(--muted);font-size:.82rem;margin-bottom:16px">Lowest traffic windows based on historical patterns</p>
+                {% for slot in recommended_slots %}
+                <div class="ai-slot-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="ai-slot-date">{{ slot.date|date:"D, d M Y" }}</div>
+                        <div class="ai-slot-time">{{ slot.start_time|time:"g:i A" }} – {{ slot.end_time|time:"g:i A" }}</div>
+                    </div>
+                    <span class="badge badge-recommended" style="font-size:.65rem;white-space:nowrap"><i class="bi bi-stars me-1"></i>AI Pick</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="card p-4 fade-in-3">
+                <h6 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:16px;color:#e8eeff">
+                    <i class="bi bi-info-circle me-2" style="color:var(--cyan)"></i>Slot Legend
+                </h6>
+                <div class="d-flex align-items-center mb-3 gap-2">
+                    <div style="width:14px;height:14px;border-radius:4px;background:var(--emerald);flex-shrink:0"></div>
+                    <span style="font-size:.88rem;color:#e8eeff">Available</span>
+                </div>
+                <div class="d-flex align-items-center mb-3 gap-2">
+                    <div style="width:14px;height:14px;border-radius:4px;background:var(--warning);flex-shrink:0"></div>
+                    <span style="font-size:.88rem;color:#e8eeff">Almost Full</span>
+                </div>
+                <hr style="border-color:var(--border);margin:12px 0">
+                <p style="font-size:.82rem;color:var(--muted);margin:0">
+                    <i class="bi bi-shield-lock me-1" style="color:var(--primary)"></i>
+                    All bookings are protected with CSRF tokens and atomic transactions.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const dateInput = document.getElementById('dateInput');
+const slotSection = document.getElementById('slotSection');
+const slotLoader = document.getElementById('slotLoader');
+const slotList = document.getElementById('slotList');
+const timeslotInput = document.getElementById('timeslotInput');
+const submitBtn = document.getElementById('submitBtn');
+
+dateInput.min = new Date().toISOString().split('T')[0];
+
+dateInput.addEventListener('change', function() {
+    if (!this.value) return;
+    slotSection.style.display = 'block';
+    slotLoader.style.display = 'block';
+    slotList.innerHTML = '';
+    timeslotInput.value = '';
+    submitBtn.disabled = true;
+
+    fetch(`/api/available-slots/?date=${this.value}`)
+        .then(r => r.json())
+        .then(data => {
+            slotLoader.style.display = 'none';
+            if (data.blocked) {
+                slotList.innerHTML = `<div class="col-12"><div class="alert alert-warning"><i class="bi bi-calendar-x me-2"></i>This date is blocked for bookings.</div></div>`;
+                return;
+            }
+            if (!data.slots || !data.slots.length) {
+                slotList.innerHTML = `<div class="col-12"><div class="alert alert-info"><i class="bi bi-info-circle me-2"></i>No available slots for this date.</div></div>`;
+                return;
+            }
+            data.slots.forEach((slot, i) => {
+                const rec = slot.is_recommended
+                    ? `<span class="badge badge-recommended ms-1" style="font-size:.62rem"><i class="bi bi-stars me-1"></i>AI Pick</span>`
+                    : '';
+                const spots = slot.status === 'almost_full'
+                    ? `<div style="font-size:.72rem;color:var(--warning);margin-top:4px"><i class="bi bi-exclamation-triangle me-1"></i>${slot.available_spots} spot(s) left</div>`
+                    : '';
+                const col = document.createElement('div');
+                col.className = 'col-sm-6';
+                col.innerHTML = `
+                    <div class="slot-card slot-${slot.status} ${slot.is_recommended ? 'slot-recommended' : ''}" data-id="${slot.id}">
+                        <div class="slot-time">${slot.label}</div>
+                        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:4px">${rec}${spots}</div>
+                    </div>`;
+                col.querySelector('.slot-card').addEventListener('click', function() {
+                    document.querySelectorAll('.slot-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    timeslotInput.value = this.dataset.id;
+                    submitBtn.disabled = false;
+                });
+                slotList.appendChild(col);
+            });
+        })
+        .catch(() => {
+            slotLoader.style.display = 'none';
+            slotList.innerHTML = `<div class="col-12"><div class="alert alert-danger">Error loading slots. Please try again.</div></div>`;
+        });
+});
+</script>
+{% endblock %}

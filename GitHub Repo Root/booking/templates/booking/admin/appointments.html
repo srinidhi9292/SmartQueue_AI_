@@ -1,0 +1,83 @@
+{% extends 'booking/base.html' %}
+{% load booking_extras %}
+{% block title %}Appointments{% endblock %}
+{% block extra_css %}<style>.admin-layout{display:flex;min-height:calc(100vh - 67px)}.main-content{flex:1;padding:36px;overflow-x:hidden}</style>{% endblock %}
+{% block content %}
+<div class="admin-layout" style="position:relative;z-index:1">
+<div class="admin-sidebar">
+    <div class="px-4 mb-4"><div style="font-size:.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted)">Admin Panel</div></div>
+    <nav class="nav flex-column gap-1">
+        <a class="nav-link" href="{% url 'admin_dashboard' %}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+        <a class="nav-link active" href="{% url 'admin_appointments' %}"><i class="bi bi-calendar-check"></i>Appointments</a>
+        <a class="nav-link" href="{% url 'admin_services' %}"><i class="bi bi-grid-3x3-gap"></i>Services</a>
+        <a class="nav-link" href="{% url 'admin_timeslots' %}"><i class="bi bi-clock"></i>Time Slots</a>
+        <a class="nav-link" href="{% url 'admin_blocked_dates' %}"><i class="bi bi-calendar-x"></i>Blocked Dates</a>
+        <a class="nav-link" href="{% url 'admin_analytics' %}"><i class="bi bi-graph-up"></i>Analytics</a>
+        <div style="height:1px;background:var(--border);margin:12px 16px"></div>
+        <a class="nav-link" href="{% url 'home' %}"><i class="bi bi-house"></i>Public Site</a>
+    </nav>
+</div>
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <span class="section-label mb-2 d-inline-flex">Manage</span>
+            <h3 style="font-family:'Syne',sans-serif;font-weight:800;margin:0;letter-spacing:-0.5px">Appointments</h3>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'admin_appointments' %}" class="btn btn-sm {% if not request.GET.status %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius:50px">All</a>
+            <a href="?status=pending" class="btn btn-sm {% if request.GET.status == 'pending' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius:50px">Pending</a>
+            <a href="?status=approved" class="btn btn-sm {% if request.GET.status == 'approved' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius:50px">Approved</a>
+            <a href="?status=completed" class="btn btn-sm {% if request.GET.status == 'completed' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius:50px">Completed</a>
+            <a href="?status=cancelled" class="btn btn-sm {% if request.GET.status == 'cancelled' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius:50px">Cancelled</a>
+            <a href="?status=checked_in" class="btn btn-sm {% if request.GET.status == 'checked_in' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius:50px">Checked In</a>
+        </div>
+    </div>
+    <div class="card">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--primary),var(--cyan));border-radius:20px 20px 0 0"></div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th>#</th><th>User</th><th>Service</th><th>Date & Time</th><th>Wait</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for appt in appointments %}
+                    <tr class="fade-in">
+                        <td style="color:var(--muted);font-size:.85rem">{{ appt.pk }}</td>
+                        <td>
+                            <div style="font-weight:600;font-size:.9rem">{{ appt.user.get_full_name|default:appt.user.username }}</div>
+                            <div style="color:var(--muted);font-size:.78rem">{{ appt.user.email }}</div>
+                        </td>
+                        <td>
+                            <div style="font-size:.9rem">{{ appt.service.name }}</div>
+                            <div style="color:var(--muted);font-size:.78rem">{{ appt.service.duration }} min</div>
+                        </td>
+                        <td>
+                            <div style="font-size:.9rem">{{ appt.timeslot.date|date:"d M Y" }}</div>
+                            <div style="color:var(--muted);font-size:.78rem">{{ appt.timeslot.start_time|time:"g:i A" }}</div>
+                        </td>
+                        <td>
+                            {% with wt=appt.estimated_waiting_time %}
+                            {% if wt == 0 %}<span style="color:var(--emerald);font-weight:700;font-size:.88rem">No Wait</span>
+                            {% else %}<span style="color:var(--warning);font-weight:700;font-size:.88rem">~{{ wt }}m</span>{% endif %}
+                            {% endwith %}
+                        </td>
+                        <td><span class="badge badge-{{ appt.status }} rounded-pill px-3 py-2">{{ appt.get_status_display }}</span></td>
+                        <td>
+                            {% if appt.status == 'pending' %}
+                            <form method="post" action="{% url 'admin_appointment_action' appt.pk 'approve' %}" class="d-inline">{% csrf_token %}<button class="btn btn-success btn-sm me-1" style="border-radius:8px">Approve</button></form>
+                            <form method="post" action="{% url 'admin_appointment_action' appt.pk 'reject' %}" class="d-inline">{% csrf_token %}<button class="btn btn-outline-danger btn-sm" style="border-radius:8px">Reject</button></form>
+                            {% elif appt.status == 'approved' or appt.status == 'checked_in' %}
+                            <form method="post" action="{% url 'admin_appointment_action' appt.pk 'complete' %}" class="d-inline">{% csrf_token %}<button class="btn btn-info btn-sm" style="border-radius:8px">Complete</button></form>
+                            {% else %}<span style="color:var(--muted)">—</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center py-5" style="color:var(--muted)">No appointments found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,206 @@
+{% extends 'booking/base.html' %}
+{% block title %}Documentation{% endblock %}
+{% block extra_css %}
+<style>
+.doc-nav { position:sticky; top:80px; }
+.doc-nav a { display:block; padding:8px 16px; color:var(--muted); text-decoration:none; border-left:2px solid var(--border); font-size:.88rem; transition:all .2s; }
+.doc-nav a:hover, .doc-nav a.active { color:var(--primary); border-left-color:var(--primary); background:rgba(91,143,255,.06); }
+.doc-section { scroll-margin-top:90px; }
+.code-block { background:var(--void); border:1px solid var(--border); border-radius:12px; padding:20px; font-family:monospace; font-size:.85rem; color:#a5f3fc; overflow-x:auto; }
+.doc-table th { color:#8fa8cc !important; font-size:.78rem; text-transform:uppercase; letter-spacing:.5px; }
+.doc-table td, .doc-table th { border-color:var(--border)!important; padding:12px 16px; color:#e8eeff !important; }
+.tech-item { display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border); }
+.tech-item span { font-size:.9rem; color:#e8eeff; }
+.step-box { flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center; }
+.step-num { font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;margin-bottom:8px; }
+.step-desc { font-size:.85rem;color:var(--muted); }
+.perm-yes { color:var(--emerald); font-weight:700; }
+.perm-no  { color:var(--danger);  font-weight:700; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 fade-in" style="z-index:1;position:relative">
+    <div class="row g-5">
+        <!-- TOC -->
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class="doc-nav card p-3">
+                <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);padding:8px 16px;margin-bottom:8px">Contents</div>
+                <a href="#overview">Overview</a>
+                <a href="#architecture">Architecture</a>
+                <a href="#ai-engine">AI Engine</a>
+                <a href="#roles">Role Matrix</a>
+                <a href="#qr">QR Check-In</a>
+                <a href="#tech">Tech Stack</a>
+                <a href="#future">Future Scope</a>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="col-lg-9">
+            <span class="section-label mb-3 d-inline-flex">Technical Docs</span>
+            <h2 style="font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px;color:#e8eeff">Documentation</h2>
+            <p style="color:var(--muted);margin-bottom:48px">Complete technical reference for SmartQueue AI</p>
+
+            <!-- Overview -->
+            <section id="overview" class="doc-section mb-5">
+                <div class="card p-4">
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--primary),var(--cyan));border-radius:20px 20px 0 0"></div>
+                    <h4 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:16px;color:#e8eeff"><i class="bi bi-info-circle me-2" style="color:var(--primary)"></i>Overview</h4>
+                    <p style="color:var(--muted);line-height:1.8">SmartQueue AI is a Django-based intelligent appointment booking and queue optimization platform. It uses pattern analysis to recommend optimal low-traffic time slots, predicts waiting times, enables QR check-in, and provides a real-time analytics dashboard for administrators.</p>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-4"><div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center"><div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.5rem;color:var(--primary)">6</div><div style="color:var(--muted);font-size:.82rem">DB Models</div></div></div>
+                        <div class="col-md-4"><div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center"><div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.5rem;color:var(--cyan)">25+</div><div style="color:var(--muted);font-size:.82rem">URL Routes</div></div></div>
+                        <div class="col-md-4"><div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center"><div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.5rem;color:var(--emerald)">3</div><div style="color:var(--muted);font-size:.82rem">User Roles</div></div></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Architecture -->
+            <section id="architecture" class="doc-section mb-5">
+                <div class="card p-4">
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--violet),var(--primary));border-radius:20px 20px 0 0"></div>
+                    <h4 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:16px;color:#e8eeff"><i class="bi bi-diagram-3 me-2" style="color:var(--violet)"></i>Architecture</h4>
+                    <div class="code-block">Browser → Django URL Router → Class-Based Views
+    ↓                              ↓
+Templates ←── Context Data ←── Models (SQLite/PostgreSQL)
+                                   ↓
+                           AI Engine (ai_engine.py)
+                                   ↓
+                      SmartSlotRecommender.get_recommendations()</div>
+                    <div class="mt-4">
+                        <table class="table doc-table">
+                            <thead><tr><th>Model</th><th>Key Fields</th><th>Purpose</th></tr></thead>
+                            <tbody>
+                                <tr><td style="color:var(--primary);font-weight:600">User</td><td style="color:var(--muted)">Built-in Django</td><td style="color:var(--muted)">Authentication</td></tr>
+                                <tr><td style="color:var(--primary);font-weight:600">Profile</td><td style="color:var(--muted)">phone, role</td><td style="color:var(--muted)">Extended user info + roles</td></tr>
+                                <tr><td style="color:var(--primary);font-weight:600">Service</td><td style="color:var(--muted)">name, duration, price</td><td style="color:var(--muted)">Available services</td></tr>
+                                <tr><td style="color:var(--primary);font-weight:600">TimeSlot</td><td style="color:var(--muted)">date, start/end, capacity</td><td style="color:var(--muted)">Bookable time windows</td></tr>
+                                <tr><td style="color:var(--primary);font-weight:600">Appointment</td><td style="color:var(--muted)">status, qr_token, qr_code_image</td><td style="color:var(--muted)">Core booking record</td></tr>
+                                <tr><td style="color:var(--primary);font-weight:600">BlockedDate</td><td style="color:var(--muted)">date, reason</td><td style="color:var(--muted)">Holiday / unavailability</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Engine -->
+            <section id="ai-engine" class="doc-section mb-5">
+                <div class="card p-4">
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--warning));border-radius:20px 20px 0 0"></div>
+                    <h4 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:16px;color:#e8eeff"><i class="bi bi-cpu me-2" style="color:var(--gold)"></i>AI Recommendation Engine</h4>
+                    <p style="color:var(--muted);line-height:1.8;margin-bottom:20px">The <code style="color:var(--cyan)">SmartSlotRecommender</code> class uses a 4-step heuristic algorithm requiring no external ML libraries:</p>
+                    <div class="d-flex flex-column gap-3">
+                        <div style="display:flex;gap:16px;align-items:flex-start">
+                            <div style="width:32px;height:32px;min-width:32px;background:rgba(91,143,255,.15);border:1px solid rgba(91,143,255,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;color:var(--primary)">1</div>
+                            <div><div style="font-weight:600;color:#e8eeff;margin-bottom:4px">Query last 30 days</div><div style="color:var(--muted);font-size:.88rem">Pull all appointments from the past 30 days grouped by hour</div></div>
+                        </div>
+                        <div style="display:flex;gap:16px;align-items:flex-start">
+                            <div style="width:32px;height:32px;min-width:32px;background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">2</div>
+                            <div><div style="font-weight:600;color:#e8eeff;margin-bottom:4px">Count bookings per hour</div><div style="color:var(--muted);font-size:.88rem">Aggregate booking counts for each hour window (7am–7pm)</div></div>
+                        </div>
+                        <div style="display:flex;gap:16px;align-items:flex-start">
+                            <div style="width:32px;height:32px;min-width:32px;background:rgba(0,255,163,.1);border:1px solid rgba(0,255,163,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;color:var(--emerald)">3</div>
+                            <div><div style="font-weight:600;color:#e8eeff;margin-bottom:4px">Calculate median</div><div style="color:var(--muted);font-size:.88rem">Find the statistical median booking count across all hours</div></div>
+                        </div>
+                        <div style="display:flex;gap:16px;align-items:flex-start">
+                            <div style="width:32px;height:32px;min-width:32px;background:rgba(255,204,0,.1);border:1px solid rgba(255,204,0,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;color:var(--gold)">4</div>
+                            <div><div style="font-weight:600;color:#e8eeff;margin-bottom:4px">Flag low-traffic slots</div><div style="color:var(--muted);font-size:.88rem">Hours with bookings ≤ median are tagged as "AI Recommended"</div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Roles -->
+            <section id="roles" class="doc-section mb-5">
+                <div class="card p-4">
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--emerald),var(--cyan));border-radius:20px 20px 0 0"></div>
+                    <h4 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:16px;color:#e8eeff"><i class="bi bi-shield-lock me-2" style="color:var(--emerald)"></i>Role Permission Matrix</h4>
+                    <table class="table doc-table">
+                        <thead><tr><th>Permission</th><th>User</th><th>Staff</th><th>Admin</th></tr></thead>
+                        <tbody>
+                            <tr><td>Book appointments</td><td class="perm-yes">✓</td><td class="perm-yes">✓</td><td class="perm-yes">✓</td></tr>
+                            <tr><td>View own appointments</td><td class="perm-yes">✓</td><td class="perm-yes">✓</td><td class="perm-yes">✓</td></tr>
+                            <tr><td>Cancel own appointments</td><td class="perm-yes">✓</td><td class="perm-yes">✓</td><td class="perm-yes">✓</td></tr>
+                            <tr><td>Approve / Reject bookings</td><td class="perm-no">✗</td><td class="perm-yes">✓</td><td class="perm-yes">✓</td></tr>
+                            <tr><td>Manage services &amp; slots</td><td class="perm-no">✗</td><td class="perm-yes">✓</td><td class="perm-yes">✓</td></tr>
+                            <tr><td>Full analytics dashboard</td><td class="perm-no">✗</td><td class="perm-no">✗</td><td class="perm-yes">✓</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- QR -->
+            <section id="qr" class="doc-section mb-5">
+                <div class="card p-4">
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--primary),var(--violet));border-radius:20px 20px 0 0"></div>
+                    <h4 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:20px;color:#e8eeff"><i class="bi bi-qr-code me-2" style="color:var(--primary)"></i>QR Code Check-In Flow</h4>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="step-box"><div class="step-num" style="color:var(--primary)">1</div><div class="step-desc">User books appointment</div></div>
+                        <div class="step-box"><div class="step-num" style="color:var(--cyan)">2</div><div class="step-desc">UUID token generated</div></div>
+                        <div class="step-box"><div class="step-num" style="color:var(--emerald)">3</div><div class="step-desc">QR image generated</div></div>
+                        <div class="step-box"><div class="step-num" style="color:var(--gold)">4</div><div class="step-desc">Staff scans QR code</div></div>
+                        <div class="step-box"><div class="step-num" style="color:var(--violet)">5</div><div class="step-desc">Status → Checked In</div></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tech Stack — NO |split filter, hardcoded -->
+            <section id="tech" class="doc-section mb-5">
+                <div class="card p-4">
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--emerald));border-radius:20px 20px 0 0"></div>
+                    <h4 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:20px;color:#e8eeff"><i class="bi bi-stack me-2" style="color:var(--cyan)"></i>Technology Stack</h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <h6 style="color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Backend</h6>
+                            <div class="tech-item"><div style="width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0"></div><span>Python 3.13</span></div>
+                            <div class="tech-item"><div style="width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0"></div><span>Django 6.0</span></div>
+                            <div class="tech-item"><div style="width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0"></div><span>SQLite / PostgreSQL</span></div>
+                            <div class="tech-item"><div style="width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0"></div><span>qrcode[pil]</span></div>
+                            <div class="tech-item"><div style="width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0"></div><span>Gunicorn</span></div>
+                            <div class="tech-item" style="border:none"><div style="width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0"></div><span>WhiteNoise</span></div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 style="color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Frontend</h6>
+                            <div class="tech-item"><div style="width:8px;height:8px;border-radius:50%;background:var(--cyan);flex-shrink:0"></div><span>Bootstrap 5.3</span></div>
+                            <div class="tech-item"><div style="width:8px;height:8px;border-radius:50%;background:var(--cyan);flex-shrink:0"></div><span>Bootstrap Icons</span></div>
+                            <div class="tech-item"><div style="width:8px;height:8px;border-radius:50%;background:var(--cyan);flex-shrink:0"></div><span>Chart.js 4.x</span></div>
+                            <div class="tech-item"><div style="width:8px;height:8px;border-radius:50%;background:var(--cyan);flex-shrink:0"></div><span>Fetch API (AJAX)</span></div>
+                            <div class="tech-item"><div style="width:8px;height:8px;border-radius:50%;background:var(--cyan);flex-shrink:0"></div><span>Google Fonts (Syne + DM Sans)</span></div>
+                            <div class="tech-item" style="border:none"><div style="width:8px;height:8px;border-radius:50%;background:var(--cyan);flex-shrink:0"></div><span>CSS Animations</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Future Scope -->
+            <section id="future" class="doc-section mb-5">
+                <div class="card p-4">
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--violet),var(--danger));border-radius:20px 20px 0 0"></div>
+                    <h4 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:16px;color:#e8eeff"><i class="bi bi-rocket me-2" style="color:var(--violet)"></i>Future Scope</h4>
+                    <div class="row g-3">
+                        <div class="col-md-6"><div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px"><i class="bi bi-arrow-right-circle" style="color:var(--violet)"></i><span style="font-size:.9rem;color:#e8eeff">ML-based demand prediction</span></div></div>
+                        <div class="col-md-6"><div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px"><i class="bi bi-arrow-right-circle" style="color:var(--violet)"></i><span style="font-size:.9rem;color:#e8eeff">SMS / WhatsApp notifications</span></div></div>
+                        <div class="col-md-6"><div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px"><i class="bi bi-arrow-right-circle" style="color:var(--violet)"></i><span style="font-size:.9rem;color:#e8eeff">Google Calendar sync</span></div></div>
+                        <div class="col-md-6"><div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px"><i class="bi bi-arrow-right-circle" style="color:var(--violet)"></i><span style="font-size:.9rem;color:#e8eeff">Multi-tenant SaaS mode</span></div></div>
+                        <div class="col-md-6"><div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px"><i class="bi bi-arrow-right-circle" style="color:var(--violet)"></i><span style="font-size:.9rem;color:#e8eeff">Real-time queue display (WebSockets)</span></div></div>
+                        <div class="col-md-6"><div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px"><i class="bi bi-arrow-right-circle" style="color:var(--violet)"></i><span style="font-size:.9rem;color:#e8eeff">Mobile app (React Native)</span></div></div>
+                        <div class="col-md-6"><div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px"><i class="bi bi-arrow-right-circle" style="color:var(--violet)"></i><span style="font-size:.9rem;color:#e8eeff">Payment gateway integration</span></div></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const sections = document.querySelectorAll('.doc-section');
+const links = document.querySelectorAll('.doc-nav a');
+window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
+    links.forEach(l => { l.classList.toggle('active', l.getAttribute('href') === '#' + current); });
+});
+</script>
+{% endblock %}

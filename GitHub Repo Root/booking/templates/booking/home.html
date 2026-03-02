@@ -1,0 +1,337 @@
+{% extends 'booking/base.html' %}
+{% block title %}Home{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Floating particles */
+.particle-field { position:absolute;inset:0;overflow:hidden;pointer-events:none; }
+.orb {
+    position:absolute; border-radius:50%;
+    filter: blur(80px); opacity: 0.08;
+    animation: float linear infinite;
+}
+@keyframes float {
+    0%   { transform: translateY(0) rotate(0deg); }
+    50%  { transform: translateY(-40px) rotate(180deg); }
+    100% { transform: translateY(0) rotate(360deg); }
+}
+.typing-cursor {
+    display: inline-block;
+    width: 3px; height: 1em;
+    background: var(--cyan);
+    margin-left: 4px;
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* Feature cards hover glow */
+.feature-card {
+    cursor: default;
+    transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+}
+.feature-card:hover {
+    border-color: var(--border-bright) !important;
+    box-shadow: 0 0 0 1px rgba(91,143,255,0.15), 0 30px 80px rgba(0,0,0,0.4) !important;
+}
+.feature-icon {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    transition: transform 0.3s;
+}
+.feature-card:hover .feature-icon { transform: scale(1.1) rotate(-5deg); }
+
+/* Stat counter */
+.hero-stat {
+    text-align: center;
+    padding: 20px 30px;
+    border-radius: 16px;
+    background: rgba(20,27,48,0.6);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+}
+.hero-stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.5rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+/* Problem solution */
+.ps-card {
+    border-radius: 20px;
+    padding: 32px;
+    height: 100%;
+}
+.ps-card.problem {
+    background: linear-gradient(135deg, rgba(255,77,109,0.08), rgba(255,77,109,0.02));
+    border: 1px solid rgba(255,77,109,0.2);
+}
+.ps-card.solution {
+    background: linear-gradient(135deg, rgba(0,255,163,0.08), rgba(0,255,163,0.02));
+    border: 1px solid rgba(0,255,163,0.2);
+}
+
+/* Service cards */
+.service-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(91,143,255,0.1); border: 1px solid rgba(91,143,255,0.2);
+    color: var(--primary); border-radius: 50px; padding: 4px 12px; font-size: 0.78rem;
+}
+
+/* CTA section */
+.cta-section {
+    background: linear-gradient(135deg, rgba(91,143,255,0.08), rgba(0,229,255,0.04));
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 60px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%; transform: translateX(-50%);
+    width: 400px; height: 200px;
+    background: radial-gradient(circle, rgba(91,143,255,0.15), transparent 70%);
+    pointer-events: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ── HERO ── -->
+<section class="hero-gradient position-relative" style="min-height:90vh;display:flex;align-items:center">
+    <div class="particle-field">
+        <div class="orb" style="width:500px;height:500px;background:var(--primary);top:-100px;left:-100px;animation-duration:20s"></div>
+        <div class="orb" style="width:400px;height:400px;background:var(--violet);bottom:-80px;right:-80px;animation-duration:25s"></div>
+        <div class="orb" style="width:300px;height:300px;background:var(--cyan);top:40%;left:40%;animation-duration:18s"></div>
+    </div>
+
+    <div class="container text-center position-relative fade-in" style="z-index:1">
+        <div class="mb-5 fade-in-1">
+            <span class="section-label">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--emerald);animation:blink 1.5s infinite"></span>
+                AI-Powered Scheduling Platform
+            </span>
+        </div>
+
+        <h1 class="hero-gradient h1 mb-4 fade-in-2" style="font-size:clamp(2.5rem,6vw,4.5rem)">
+            <span class="gradient-text">Smart</span>Queue AI<br>
+            <span style="font-size:0.55em;font-weight:600;color:var(--muted);letter-spacing:0;font-family:'DM Sans',sans-serif">
+                Eliminate Waiting. Optimize Scheduling.
+            </span>
+        </h1>
+
+        <p class="fade-in-3 mb-5 mx-auto" style="max-width:580px;font-size:1.15rem;color:var(--muted);line-height:1.8">
+            Our AI engine analyzes booking patterns to recommend optimal time slots,
+            predicts your exact queue position, and delivers real-time queue visibility.
+        </p>
+
+        <div class="d-flex gap-3 justify-content-center flex-wrap mb-5 fade-in-4">
+            <a href="{% url 'book_appointment' %}" class="btn btn-primary btn-lg px-5 py-3" style="border-radius:50px;font-family:'Syne',sans-serif">
+                <i class="bi bi-calendar-plus me-2"></i>Book Appointment
+            </a>
+            <a href="{% url 'services' %}" class="btn btn-light btn-lg px-5 py-3" style="border-radius:50px">
+                Explore Services →
+            </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="row justify-content-center g-3 fade-in-5">
+            <div class="col-auto">
+                <div class="hero-stat">
+                    <div class="hero-stat-num">{{ total_bookings }}<span style="font-size:1.5rem">+</span></div>
+                    <div class="small" style="color:var(--muted)">Bookings Made</div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="hero-stat">
+                    <div class="hero-stat-num">{{ active_services }}</div>
+                    <div class="small" style="color:var(--muted)">Active Services</div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="hero-stat">
+                    <div class="hero-stat-num">AI</div>
+                    <div class="small" style="color:var(--muted)">Powered Engine</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="glow-divider">
+
+<!-- ── PROBLEM & SOLUTION ── -->
+<section class="py-5 position-relative" style="z-index:1">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="section-label">Why SmartQueue AI?</span>
+            <div class="section-title">The problem we solve</div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 fade-in-1">
+                <div class="ps-card problem h-100">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="feature-icon me-3" style="background:rgba(255,77,109,0.12);border:1px solid rgba(255,77,109,0.25)">
+                            <i class="bi bi-exclamation-triangle" style="color:var(--danger)"></i>
+                        </div>
+                        <h4 class="mb-0 fw-bold" style="font-family:'Syne',sans-serif;color:var(--danger)">The Problem</h4>
+                    </div>
+                    <p style="color:var(--muted);line-height:1.8">Manual appointment systems cause overcrowding and unpredictable waiting times. Patients waste hours in queues with zero visibility. Staff struggle to manage demand peaks, leading to inefficiency and a poor experience for everyone.</p>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <span class="badge" style="background:rgba(255,77,109,0.12);color:var(--danger);border:1px solid rgba(255,77,109,0.2)">Long waits</span>
+                        <span class="badge" style="background:rgba(255,77,109,0.12);color:var(--danger);border:1px solid rgba(255,77,109,0.2)">No visibility</span>
+                        <span class="badge" style="background:rgba(255,77,109,0.12);color:var(--danger);border:1px solid rgba(255,77,109,0.2)">Overcrowding</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 fade-in-2">
+                <div class="ps-card solution h-100">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="feature-icon me-3" style="background:rgba(0,255,163,0.1);border:1px solid rgba(0,255,163,0.2)">
+                            <i class="bi bi-lightbulb" style="color:var(--emerald)"></i>
+                        </div>
+                        <h4 class="mb-0 fw-bold" style="font-family:'Syne',sans-serif;color:var(--emerald)">Our Solution</h4>
+                    </div>
+                    <p style="color:var(--muted);line-height:1.8">SmartQueue AI uses pattern analysis to recommend optimal low-traffic slots, provides real-time queue visibility, predicts accurate waiting times, and enables instant QR check-in — transforming chaos into precision.</p>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <span class="badge" style="background:rgba(0,255,163,0.1);color:var(--emerald);border:1px solid rgba(0,255,163,0.2)">AI Slots</span>
+                        <span class="badge" style="background:rgba(0,255,163,0.1);color:var(--emerald);border:1px solid rgba(0,255,163,0.2)">Predictions</span>
+                        <span class="badge" style="background:rgba(0,255,163,0.1);color:var(--emerald);border:1px solid rgba(0,255,163,0.2)">QR Check-In</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section class="py-5 position-relative" style="z-index:1">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="section-label">Features</span>
+            <div class="section-title">Everything you need</div>
+        </div>
+        <div class="row g-4">
+            {% for icon, title, desc, color, bg in features_data %}{% endfor %}
+            <div class="col-md-4 fade-in-1">
+                <div class="card feature-card p-4 h-100">
+                    <div class="feature-icon" style="background:rgba(91,143,255,0.1);border:1px solid rgba(91,143,255,0.2)">
+                        <i class="bi bi-cpu" style="color:var(--primary)"></i>
+                    </div>
+                    <h5 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:10px">Smart Slot Recommendation</h5>
+                    <p style="color:var(--muted);font-size:.92rem;line-height:1.7">AI analyzes 30 days of booking history to identify low-traffic windows and badge them as recommended.</p>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in-2">
+                <div class="card feature-card p-4 h-100">
+                    <div class="feature-icon" style="background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.2)">
+                        <i class="bi bi-clock-history" style="color:var(--cyan)"></i>
+                    </div>
+                    <h5 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:10px">Waiting Time Prediction</h5>
+                    <p style="color:var(--muted);font-size:.92rem;line-height:1.7">Calculates your exact estimated wait using queue position × service duration. Shown instantly after booking.</p>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in-3">
+                <div class="card feature-card p-4 h-100">
+                    <div class="feature-icon" style="background:rgba(255,204,0,0.1);border:1px solid rgba(255,204,0,0.2)">
+                        <i class="bi bi-qr-code" style="color:var(--gold)"></i>
+                    </div>
+                    <h5 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:10px">QR Code Check-In</h5>
+                    <p style="color:var(--muted);font-size:.92rem;line-height:1.7">Every booking gets a unique QR code. Scan at reception for instant contactless check-in — no paperwork.</p>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in-4">
+                <div class="card feature-card p-4 h-100">
+                    <div class="feature-icon" style="background:rgba(162,89,255,0.1);border:1px solid rgba(162,89,255,0.2)">
+                        <i class="bi bi-graph-up-arrow" style="color:var(--violet)"></i>
+                    </div>
+                    <h5 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:10px">Analytics Dashboard</h5>
+                    <p style="color:var(--muted);font-size:.92rem;line-height:1.7">Live Chart.js dashboards: daily trends, peak hour analysis, service popularity, and status distribution.</p>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in-5">
+                <div class="card feature-card p-4 h-100">
+                    <div class="feature-icon" style="background:rgba(0,255,163,0.1);border:1px solid rgba(0,255,163,0.2)">
+                        <i class="bi bi-envelope-check" style="color:var(--emerald)"></i>
+                    </div>
+                    <h5 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:10px">Email Notifications</h5>
+                    <p style="color:var(--muted);font-size:.92rem;line-height:1.7">Automated confirmation, approval, and cancellation emails keep users informed at every step.</p>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in-5">
+                <div class="card feature-card p-4 h-100">
+                    <div class="feature-icon" style="background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.2)">
+                        <i class="bi bi-shield-lock" style="color:var(--danger)"></i>
+                    </div>
+                    <h5 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:10px">Role-Based Access</h5>
+                    <p style="color:var(--muted);font-size:.92rem;line-height:1.7">Three-tier system: Users book; Staff manage statuses; Admins access full analytics and configuration.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── SERVICES ── -->
+{% if services %}
+<section class="py-5 position-relative" style="z-index:1">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="section-label">Services</span>
+            <div class="section-title">Available right now</div>
+        </div>
+        <div class="row g-4">
+            {% for service in services %}
+            <div class="col-md-4 fade-in-{{ forloop.counter }}">
+                <div class="card p-4 h-100" style="cursor:default">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="feature-icon" style="background:rgba(91,143,255,0.1);border:1px solid rgba(91,143,255,0.18);min-width:48px;height:48px;font-size:1.1rem;border-radius:14px">
+                            <i class="bi bi-briefcase" style="color:var(--primary)"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px">{{ service.name }}</h6>
+                            <p style="color:var(--muted);font-size:.85rem;line-height:1.6;margin-bottom:12px">{{ service.description|truncatewords:18 }}</p>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="service-chip"><i class="bi bi-clock"></i>{{ service.duration }} min</span>
+                                {% if service.price %}<span class="service-chip" style="background:rgba(0,255,163,0.08);border-color:rgba(0,255,163,0.2);color:var(--emerald)">₹{{ service.price }}</span>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-5">
+            <a href="{% url 'book_appointment' %}" class="btn btn-primary btn-lg px-5 py-3" style="border-radius:50px;font-family:'Syne',sans-serif">
+                <i class="bi bi-calendar-plus me-2"></i>Book an Appointment
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ── CTA ── -->
+<section class="py-5 position-relative" style="z-index:1">
+    <div class="container pb-4">
+        <div class="cta-section">
+            <span class="section-label mb-4 d-inline-flex">Start Today</span>
+            <h2 style="font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;margin-bottom:16px">
+                Ready to eliminate the queue?
+            </h2>
+            <p style="color:var(--muted);max-width:500px;margin:0 auto 32px">
+                Join SmartQueue AI and experience intelligent appointment management backed by real data.
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-5" style="border-radius:50px">Create Free Account</a>
+                <a href="{% url 'documentation' %}" class="btn btn-outline-primary btn-lg px-5" style="border-radius:50px">Read the Docs</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

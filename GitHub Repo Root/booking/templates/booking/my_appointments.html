@@ -1,0 +1,70 @@
+{% extends 'booking/base.html' %}
+{% block title %}My Appointments{% endblock %}
+{% block content %}
+<div class="container py-5 fade-in" style="z-index:1;position:relative">
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <span class="section-label mb-3 d-inline-flex">Your Bookings</span>
+            <h2 style="font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-0.5px;margin:0">My Appointments</h2>
+        </div>
+        <a href="{% url 'book_appointment' %}" class="btn btn-primary px-4" style="border-radius:50px">
+            <i class="bi bi-plus-lg me-2"></i>New Booking
+        </a>
+    </div>
+
+    {% if appointments %}
+    <div class="row g-4">
+        {% for appt in appointments %}
+        <div class="col-lg-6 fade-in-{{ forloop.counter }}">
+            <div class="card p-4 h-100">
+                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:
+                    {% if appt.status == 'approved' %}linear-gradient(90deg,var(--emerald),var(--cyan))
+                    {% elif appt.status == 'pending' %}linear-gradient(90deg,var(--warning),var(--gold))
+                    {% elif appt.status == 'completed' %}linear-gradient(90deg,var(--primary),var(--violet))
+                    {% else %}linear-gradient(90deg,var(--muted),transparent)
+                    {% endif %};border-radius:20px 20px 0 0"></div>
+
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:6px">{{ appt.service.name }}</h5>
+                        <div style="color:var(--muted);font-size:.85rem"><i class="bi bi-calendar3 me-1"></i>{{ appt.timeslot.date|date:"D, d M Y" }}</div>
+                        <div style="color:var(--muted);font-size:.85rem"><i class="bi bi-clock me-1"></i>{{ appt.timeslot.start_time|time:"g:i A" }} – {{ appt.timeslot.end_time|time:"g:i A" }}</div>
+                    </div>
+                    <span class="badge badge-{{ appt.status }} rounded-pill px-3 py-2">{{ appt.get_status_display }}</span>
+                </div>
+
+                {% if appt.notes %}
+                <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.84rem;color:var(--muted);margin-bottom:12px">
+                    <i class="bi bi-chat-left-text me-1"></i>{{ appt.notes }}
+                </div>
+                {% endif %}
+
+                <div class="d-flex align-items-center justify-content-between mt-auto pt-3" style="border-top:1px solid var(--border)">
+                    <span style="color:var(--muted);font-size:.8rem">Booking #{{ appt.pk }} · {{ appt.created_at|date:"d M Y" }}</span>
+                    {% if appt.status == 'pending' or appt.status == 'approved' %}
+                    <form method="post" action="{% url 'cancel_appointment' appt.pk %}" onsubmit="return confirm('Cancel this appointment?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm" style="border-radius:8px">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card p-5 text-center fade-in-1">
+        <div class="mb-4">
+            <i class="bi bi-calendar-x" style="font-size:4rem;color:var(--muted);opacity:.4"></i>
+        </div>
+        <h4 style="font-family:'Syne',sans-serif;font-weight:700">No appointments yet</h4>
+        <p style="color:var(--muted)">Start by booking your first appointment below.</p>
+        <a href="{% url 'book_appointment' %}" class="btn btn-primary px-5 mx-auto" style="border-radius:50px;width:fit-content">
+            <i class="bi bi-calendar-plus me-2"></i>Book Now
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

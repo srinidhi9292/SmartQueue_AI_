@@ -1,0 +1,66 @@
+{% extends 'booking/admin/base_admin.html' %}
+
+{% block title %}Manage Appointments - AppointmentBook{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">Appointments</h2>
+    <div class="d-flex gap-2">
+        <a href="{% url 'admin_appointments' %}" class="btn btn-sm {% if not request.GET.status %}btn-primary{% else %}btn-outline-primary{% endif %}">All</a>
+        <a href="{% url 'admin_appointments' %}?status=pending" class="btn btn-sm {% if request.GET.status == 'pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">Pending</a>
+        <a href="{% url 'admin_appointments' %}?status=approved" class="btn btn-sm {% if request.GET.status == 'approved' %}btn-success{% else %}btn-outline-success{% endif %}">Approved</a>
+        <a href="{% url 'admin_appointments' %}?status=cancelled" class="btn btn-sm {% if request.GET.status == 'cancelled' %}btn-danger{% else %}btn-outline-danger{% endif %}">Cancelled</a>
+    </div>
+</div>
+
+{% if appointments %}
+<div class="table-responsive">
+    <table class="table table-hover bg-white rounded shadow-sm">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Email</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for apt in appointments %}
+            <tr>
+                <td>{{ apt.pk }}</td>
+                <td>{{ apt.user.get_full_name|default:apt.user.username }}</td>
+                <td>{{ apt.user.email }}</td>
+                <td>{{ apt.service.name }}</td>
+                <td>{{ apt.timeslot.date }}</td>
+                <td>{{ apt.timeslot.start_time|time:"h:i A" }} - {{ apt.timeslot.end_time|time:"h:i A" }}</td>
+                <td><span class="badge badge-{{ apt.status }} text-white">{{ apt.get_status_display }}</span></td>
+                <td>
+                    {% if apt.status == 'pending' %}
+                    <form method="post" action="{% url 'admin_appointment_action' apt.pk 'approve' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-success" title="Approve"><i class="bi bi-check-lg"></i></button>
+                    </form>
+                    <form method="post" action="{% url 'admin_appointment_action' apt.pk 'reject' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-danger" title="Reject"><i class="bi bi-x-lg"></i></button>
+                    </form>
+                    {% else %}
+                    <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card p-5 text-center">
+    <i class="bi bi-inbox text-muted" style="font-size:3rem;"></i>
+    <p class="text-muted mt-3">No appointments found.</p>
+</div>
+{% endif %}
+{% endblock %}
