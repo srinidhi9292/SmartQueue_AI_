@@ -1,0 +1,98 @@
+{% extends 'booking/base.html' %}
+{% block title %}Login{% endblock %}
+{% block extra_css %}
+<style>
+input {
+    background-color: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 12px !important;
+    color: #e8eeff !important;
+    padding: 12px 16px !important;
+}
+input::placeholder { color: var(--muted) !important; }
+input:focus {
+    border-color: rgba(91,143,255,0.5) !important;
+    box-shadow: 0 0 0 3px rgba(91,143,255,0.12) !important;
+    color: #e8eeff !important;
+    background-color: var(--surface) !important;
+}
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 48px !important; }
+.pw-toggle {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    padding: 0; font-size: 1.1rem; line-height: 1; transition: color 0.2s; z-index: 5;
+}
+.pw-toggle:hover { color: var(--primary); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="position-relative" style="min-height:100vh;display:flex;align-items:center;padding:60px 0;z-index:1">
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(91,143,255,0.07),transparent 70%);pointer-events:none"></div>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="text-center mb-4 fade-in">
+                    <div class="brand-icon mx-auto mb-3" style="width:56px;height:56px;font-size:1.3rem">
+                        <i class="bi bi-cpu-fill text-white"></i>
+                    </div>
+                    <h2 style="font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-0.5px;color:#e8eeff">Welcome back</h2>
+                    <p style="color:var(--muted)">Sign in to SmartQueue AI</p>
+                </div>
+
+                <div class="card p-4 p-md-5 fade-in-1">
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--primary),var(--cyan));border-radius:20px 20px 0 0"></div>
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                        <div class="alert alert-danger mb-4" style="border-radius:10px">
+                            <i class="bi bi-x-circle me-2"></i>Invalid username or password.
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-4">
+                            <label class="form-label" style="color:#8fa8cc;font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="Enter your username" autofocus required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label" style="color:#8fa8cc;font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Password</label>
+                            <div class="pw-wrap">
+                                <input type="password" name="password" id="loginPassword" class="form-control" placeholder="Enter your password" required>
+                                <button type="button" class="pw-toggle" onclick="togglePw()">
+                                    <i class="bi bi-eye-slash" id="eyeIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-3" style="border-radius:12px;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem">
+                            Sign In <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </form>
+                    <div class="text-center mt-4 pt-3" style="border-top:1px solid var(--border)">
+                        <span style="color:var(--muted);font-size:.9rem">No account?</span>
+                        <a href="{% url 'register' %}" class="ms-2" style="color:var(--primary);font-weight:600;text-decoration:none">Create one →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePw() {
+    const input = document.getElementById('loginPassword');
+    const icon = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye';
+    } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye-slash';
+    }
+}
+</script>
+{% endblock %}

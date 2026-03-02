@@ -1,0 +1,142 @@
+{% extends 'booking/base.html' %}
+{% block title %}Register{% endblock %}
+{% block extra_css %}
+<style>
+/* Override Bootstrap's white input background completely */
+input, select, textarea {
+    background-color: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 12px !important;
+    color: #e8eeff !important;
+    padding: 12px 16px !important;
+}
+input::placeholder, textarea::placeholder { color: var(--muted) !important; }
+input:focus, select:focus, textarea:focus {
+    border-color: rgba(91,143,255,0.5) !important;
+    box-shadow: 0 0 0 3px rgba(91,143,255,0.12) !important;
+    outline: none !important;
+    color: #e8eeff !important;
+    background-color: var(--surface) !important;
+}
+/* Date input calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) opacity(0.5);
+    cursor: pointer;
+}
+/* Password wrapper */
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 48px !important; }
+.pw-toggle {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: color 0.2s;
+    z-index: 5;
+}
+.pw-toggle:hover { color: var(--primary); }
+/* Help text */
+.helptext, .help-block { color: var(--muted) !important; font-size: .78rem !important; }
+ul.errorlist { list-style: none; padding: 0; margin: 4px 0 0; }
+ul.errorlist li { color: var(--danger); font-size: .82rem; }
+/* ul inside help text (password requirements) */
+.field-help ul { padding-left: 16px; margin: 6px 0 0; color: var(--muted); font-size: .78rem; }
+.field-help ul li { margin-bottom: 2px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="position-relative" style="min-height:100vh;display:flex;align-items:center;padding:60px 0;z-index:1">
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(162,89,255,0.07),transparent 70%);pointer-events:none"></div>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="text-center mb-4 fade-in">
+                    <div class="brand-icon mx-auto mb-3" style="width:56px;height:56px;font-size:1.3rem">
+                        <i class="bi bi-person-plus-fill text-white"></i>
+                    </div>
+                    <h2 style="font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-0.5px;color:#e8eeff">Create Account</h2>
+                    <p style="color:var(--muted)">Join SmartQueue AI today — it's free</p>
+                </div>
+
+                <div class="card p-4 p-md-5 fade-in-1">
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--violet),var(--primary));border-radius:20px 20px 0 0"></div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label" style="color:#8fa8cc;font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;font-weight:600">
+                                {{ field.label }}
+                            </label>
+
+                            {% if field.field.widget.input_type == 'password' %}
+                            <div class="pw-wrap">
+                                <input
+                                    type="password"
+                                    name="{{ field.html_name }}"
+                                    id="{{ field.auto_id }}"
+                                    class="form-control"
+                                    {% if field.value %}value="{{ field.value }}"{% endif %}
+                                    autocomplete="{% if 'confirm' in field.html_name or 'password2' in field.html_name %}new-password{% else %}new-password{% endif %}"
+                                >
+                                <button type="button" class="pw-toggle" onclick="togglePw('{{ field.auto_id }}', this)">
+                                    <i class="bi bi-eye-slash"></i>
+                                </button>
+                            </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+
+                            {% if field.errors %}
+                            <ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+                            {% endif %}
+
+                            {% if field.help_text %}
+                            <div class="field-help mt-1">
+                                <span style="color:var(--muted);font-size:.78rem">{{ field.help_text|safe }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <button type="submit" class="btn btn-primary w-100 py-3 mt-2" style="border-radius:12px;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem">
+                            <i class="bi bi-person-check me-2"></i>Create Account
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4 pt-3" style="border-top:1px solid var(--border)">
+                        <span style="color:var(--muted);font-size:.9rem">Already have an account?</span>
+                        <a href="{% url 'login' %}" class="ms-2" style="color:var(--primary);font-weight:600;text-decoration:none">Sign in →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePw(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye';
+        btn.style.color = 'var(--primary)';
+    } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye-slash';
+        btn.style.color = 'var(--muted)';
+    }
+}
+</script>
+{% endblock %}

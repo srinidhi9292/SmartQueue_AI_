@@ -1,0 +1,22 @@
+{% extends 'booking/base.html' %}
+{% block title %}Form{% endblock %}
+{% block content %}
+<div class="container py-5 fade-in" style="max-width:580px;z-index:1;position:relative">
+<span class="section-label mb-3 d-inline-flex">Admin</span>
+<div class="card p-4 p-md-5">
+<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--primary),var(--cyan));border-radius:20px 20px 0 0"></div>
+<h4 style="font-family:'Syne',sans-serif;font-weight:800;margin-bottom:28px">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Record</h4>
+<form method="post">{% csrf_token %}
+{% for field in form %}
+<div class="mb-4">
+<label class="form-label">{{ field.label }}</label>{{ field }}
+{% if field.errors %}<div style="color:var(--danger);font-size:.82rem;margin-top:4px">{{ field.errors.0 }}</div>{% endif %}
+</div>{% endfor %}
+<div class="d-flex gap-3 mt-2">
+<button type="submit" class="btn btn-primary px-5" style="border-radius:50px">Save</button>
+<a href="javascript:history.back()" class="btn btn-outline-secondary px-4" style="border-radius:50px">Cancel</a>
+</div>
+</form>
+</div>
+</div>
+{% endblock %}

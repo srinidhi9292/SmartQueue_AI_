@@ -1,0 +1,89 @@
+{% extends 'booking/base.html' %}
+{% block title %}Booking Confirmed{% endblock %}
+{% block content %}
+<div class="container py-5 fade-in" style="z-index:1;position:relative;max-width:720px">
+    <!-- Success header -->
+    <div class="text-center mb-5">
+        <div class="mx-auto mb-4 d-flex align-items-center justify-content-center" style="width:80px;height:80px;background:rgba(0,255,163,0.1);border:2px solid rgba(0,255,163,0.3);border-radius:50%;animation:fadeUp .5s both">
+            <i class="bi bi-check-lg" style="font-size:2rem;color:var(--emerald)"></i>
+        </div>
+        <h2 style="font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-0.5px">Booking Confirmed!</h2>
+        <p style="color:var(--muted)">Your appointment is booked. A confirmation email is on its way.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Details -->
+        <div class="col-md-7">
+            <div class="card p-4 mb-4 fade-in-1">
+                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--emerald),var(--cyan));border-radius:20px 20px 0 0"></div>
+                <h6 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:20px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-size:.8rem">Appointment Details</h6>
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex justify-content-between">
+                        <span style="color:var(--muted);font-size:.88rem">Booking ID</span>
+                        <span style="font-weight:700;font-family:'Syne',sans-serif">#{{ appointment.pk }}</span>
+                    </div>
+                    <div style="height:1px;background:var(--border)"></div>
+                    <div class="d-flex justify-content-between">
+                        <span style="color:var(--muted);font-size:.88rem">Service</span>
+                        <span style="font-weight:600">{{ appointment.service.name }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span style="color:var(--muted);font-size:.88rem">Date</span>
+                        <span style="font-weight:600">{{ appointment.timeslot.date|date:"l, d F Y" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span style="color:var(--muted);font-size:.88rem">Time</span>
+                        <span style="font-weight:600">{{ appointment.timeslot.start_time|time:"g:i A" }} – {{ appointment.timeslot.end_time|time:"g:i A" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span style="color:var(--muted);font-size:.88rem">Status</span>
+                        <span class="badge badge-{{ appointment.status }} px-3 py-2 rounded-pill">{{ appointment.get_status_display }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Waiting Time -->
+            <div class="card p-4 fade-in-2" style="background:linear-gradient(135deg,rgba(0,229,255,0.08),rgba(0,229,255,0.02));border-color:rgba(0,229,255,0.2)">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width:52px;height:52px;background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.25);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.3rem">
+                        <i class="bi bi-clock-history" style="color:var(--cyan)"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px">Estimated Wait</div>
+                        <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--cyan);line-height:1">
+                            {% if waiting_time == 0 %}No Wait!{% else %}~{{ waiting_time }} min{% endif %}
+                        </div>
+                        <div style="font-size:.78rem;color:var(--muted);margin-top:4px">Queue position × service duration</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QR Code -->
+        <div class="col-md-5">
+            <div class="card p-4 text-center h-100 fade-in-3" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--violet),var(--primary));border-radius:20px 20px 0 0"></div>
+                <h6 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:20px"><i class="bi bi-qr-code me-2" style="color:var(--primary)"></i>QR Check-In</h6>
+                {% if appointment.qr_code_image %}
+                    <div style="background:white;padding:12px;border-radius:12px;display:inline-block;margin-bottom:16px">
+                        <img src="{{ appointment.qr_code_image.url }}" alt="QR Code" style="width:140px;height:140px;display:block">
+                    </div>
+                {% else %}
+                    <div style="width:140px;height:140px;background:var(--surface);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+                        <i class="bi bi-qr-code" style="font-size:3.5rem;color:var(--primary)"></i>
+                    </div>
+                {% endif %}
+                <div style="font-size:.72rem;color:var(--muted);word-break:break-all;background:var(--surface);padding:8px 12px;border-radius:8px;font-family:monospace;border:1px solid var(--border)">
+                    {{ appointment.qr_token }}
+                </div>
+                <p style="font-size:.8rem;color:var(--muted);margin-top:12px">Show at reception for instant check-in</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-3 justify-content-center flex-wrap mt-5 fade-in-4">
+        <a href="{% url 'my_appointments' %}" class="btn btn-primary px-5" style="border-radius:50px">My Appointments</a>
+        <a href="{% url 'book_appointment' %}" class="btn btn-outline-primary px-5" style="border-radius:50px">Book Another</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'booking/base.html' %}
+{% block title %}Confirm Delete{% endblock %}
+{% block content %}
+<div class="container py-5 text-center fade-in" style="max-width:500px;z-index:1;position:relative">
+<div class="card p-5">
+<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--danger),var(--warning));border-radius:20px 20px 0 0"></div>
+<div class="mb-4 mx-auto d-flex align-items-center justify-content-center" style="width:64px;height:64px;background:rgba(255,77,109,0.1);border:2px solid rgba(255,77,109,0.3);border-radius:50%">
+<i class="bi bi-exclamation-triangle" style="font-size:1.5rem;color:var(--danger)"></i>
+</div>
+<h4 style="font-family:'Syne',sans-serif;font-weight:800">Confirm Delete</h4>
+<p style="color:var(--muted)">Are you sure you want to delete <strong style="color:var(--text)">{{ object }}</strong>? This cannot be undone.</p>
+<form method="post" class="d-flex gap-3 justify-content-center">{% csrf_token %}
+<button type="submit" class="btn btn-danger px-5" style="border-radius:50px">Yes, Delete</button>
+<a href="javascript:history.back()" class="btn btn-outline-secondary px-4" style="border-radius:50px">Cancel</a>
+</form>
+</div>
+</div>
+{% endblock %}
