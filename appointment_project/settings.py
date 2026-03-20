@@ -11,14 +11,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security — use environment variable in production
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-change-this-in-production-abc123xyz')
 
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = False
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://*.replit.dev',
-    'https://*.repl.co',
-    'http://localhost:8000',
+    'https://smartqueue-ai-1.onrender.com',
 ]
 
 # ---------------------------------------------------------------------------
